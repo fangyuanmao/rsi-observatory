@@ -1,0 +1,7 @@
+'use client';
+import {useState} from 'react';
+export default function Admin(){
+ const [token,setToken]=useState(''),[message,setMessage]=useState(''),[busy,setBusy]=useState(false);
+ async function run(){setBusy(true);setMessage('');try{const r=await fetch('/api/refresh',{method:'POST',headers:{Authorization:`Bearer ${token}`}});const d=await r.json() as {error?:string;papers:number;added:number;lastSuccess:string};if(!r.ok)throw Error(d.error||'Refresh failed.');setMessage(`Sync complete. ${d.papers} papers in the library; ${d.added} newly added.`);setToken('')}catch(e){setMessage(e instanceof Error?e.message:'Refresh failed.')}finally{setBusy(false)}}
+ return <div className="admin-page"><a href="/">← Back to the observatory</a><h1>Library administration</h1><p>Run the first sync after deployment, or refresh the shared paper library manually.</p><p>Automatic updates run daily at 09:00 Hong Kong time. Only the site owner should know the administrator token.</p><label htmlFor="admin-token">Administrator token</label><input id="admin-token" type="password" autoComplete="off" value={token} onChange={e=>setToken(e.target.value)} placeholder="Your Cloudflare ADMIN_TOKEN secret"/><button className="primary" disabled={busy||token.length<32} onClick={run}>{busy?'Syncing with arXiv…':'Update paper library'}</button><p role="status">{message}</p><small>The token stays in this page memory only. It is not saved to browser storage.</small></div>
+}
