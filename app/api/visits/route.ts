@@ -10,7 +10,15 @@ function count(value: unknown): number {
 export async function GET() {
   try {
     const object = await env.BUCKET.get(key);
-    return Response.json({ total: object ? count(await object.json()) : 0 }, { headers });
+    return Response.json(
+  { total: object ? count(await object.json()) : 0 },
+  {
+    headers: {
+      ...headers,
+      'Access-Control-Allow-Origin': 'https://ferris-geek.github.io',
+    },
+  },
+);
   } catch {
     return Response.json({ error: 'Visit count is temporarily unavailable.' }, { status: 503, headers });
   }
